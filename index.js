@@ -1,17 +1,22 @@
 require('dotenv').config();
 const express = require('express')
-const app = express();
+const api = express();
 const cors = require('cors');   // Cross Origin Resource Sharing
 const colors = require('colors');
+const bodyParser = require('body-parser');
 
-//inbuilt modules
-app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(colors);
-
-
-
+// Middlewares
+api.use(cors());
+api.use(express.json());
+api.use(express.urlencoded({ extended: true }));
+api.use(bodyParser.json());
 
 
-app.listen(process.env.PORT, () => { console.log(`Server is running on port ${process.env.PORT}`) });
+
+
+
+
+
+
+
+api.listen(process.env.PORT, () => { console.log(`Server running on port ${process.env.PORT}`.yellow.bold) });
