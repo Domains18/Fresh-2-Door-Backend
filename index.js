@@ -15,6 +15,7 @@ api.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 api.use('/', require('./routers/root.router'));
+
 api.all('*', (req, res) => {
     res.status(404);
     if (req.accepts('html')) {
