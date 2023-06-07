@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express')
 const api = express();
-const cors = require('cors');   // Cross Origin Resource Sharing
+const cors = require('cors');   
 const colors = require('colors');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -15,6 +15,7 @@ api.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 api.use('/', require('./routers/root.router'));
+
 api.all('*', (req, res) => {
     res.status(404);
     if (req.accepts('html')) {
