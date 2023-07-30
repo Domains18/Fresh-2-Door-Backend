@@ -4,8 +4,6 @@ const api = express();
 const cors = require('cors');   
 const colors = require('colors');
 const bodyParser = require('body-parser');
-const path = require('path');
-const { eventLogger, logger } = require('./middleware/logger')
 const errorHandler = require('./middleware/errorHandler')
 
 // Middlewares
