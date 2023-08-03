@@ -1,27 +1,42 @@
-const jwt = require('jsonwebtoken');
-const expressAsyncHandler = require('express-async-handler');
+const express = require('express');
+const { merge, get } = require('lodash');
 const User = require('../models/userschema');
+const mongoose = require('mongoose');
+const expressAsyncHandler = require('express-async-handler');
+const getUserBySessionToken = (sessionToken) => User.findOne({ 'authentication.sessionToken': sessionToken }).exec();
 
-const protect = expressAsyncHandler(async (req, res, next) =>{
-    let token;
-    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-        try{
-            token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select('-password');
-            console.log(req.user);
-            next();
-        }catch(error){
-            console.error(error);
-            res.status(401);
-            throw new Error('Not authorized, token failed');
+
+const isOwner = expressAsyncHandler(async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const currentUserId = (get, `identity._id`);
+        if (!currentUserId) {
+            return res.status(401).json({ message: 'Unauthorized' });
         }
+        next();
+    } catch (error) {
+        throw new Error(error);
+        return res.status(401).json({ message: 'Unauthorized' });
     }
-    if(!token){
-        res.status(401);
-        throw new Error('Not authorized, no token');
+});
+
+const isAuthenticated = expressAsyncHandler(async (req, res, next) => {
+    try {
+        const sessionToken = req.cookies['authentication_cookie'];
+        if (!sessionToken) {
+            res.status(401).json({ message: 'Unauthorized' });
+        }
+        const user = await getUserBySessionToken(sessionToken);
+        if (!user) {
+            res.status(401).json({ message: 'Unauthorized' });
+        }
+        merge(req, { identity: user });
+        return next();
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500).json({ message: 'something went wrong' });
     }
 });
 
 
-module.exports = { protect };
+module.exports = { isAuthenticated, isOwner }
