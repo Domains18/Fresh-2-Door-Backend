@@ -4,17 +4,13 @@ const expressAsyncHandler = require('express-async-handler');
 const { OK, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = require('http-status-codes');
 
 // Middleware to validate required fields
-const validateRequiredFields = (req, res, next) => {
+
+const registerUser = expressAsyncHandler(async (req, res) => {
     const { name, phoneNumber, email, password, location } = req.body;
     if (!name || !phoneNumber || !email || !password || !location) {
         return res.status(400).json({ message: "Please fill all fields" });
     }
-    next();
-};
-
-const registerUser = expressAsyncHandler(async (req, res) => {
     try {
-        const { name, phoneNumber, email, password, location } = req.body;
         const salt = generateRandomString();
         const hashedPassword = authentication(salt, password);
         const user = await User.create({
@@ -30,6 +26,7 @@ const registerUser = expressAsyncHandler(async (req, res) => {
         });
         return res.status(200).json(user);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Could not create user" });
     }
 });
@@ -58,4 +55,4 @@ const loginUser = expressAsyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { loginUser, registerUser, validateRequiredFields };
+module.exports = { loginUser, registerUser };
