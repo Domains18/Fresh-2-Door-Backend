@@ -6,8 +6,8 @@ const { OK, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = require('http-status-codes')
 // Middleware to validate required fields
 
 const registerAdmin = expressAsyncHandler(async (req, res) => {
-    const { userName, email, role, password, phoneNumber } = req.body;
-    if (!userName || !email || !role || !password || !phoneNumber) {
+    const { userName, email, password, phoneNumber } = req.body;
+    if (!userName || !email || !password || !phoneNumber) {
         return res.status(400).json({ message: "Please fill all fields" });
     }
     try {
@@ -18,14 +18,13 @@ const registerAdmin = expressAsyncHandler(async (req, res) => {
             phoneNumber,
             email,
             password: hashedPassword,
-            role,
             authentication: {
                 salt,
                 password: hashedPassword
             }
         });
         if (admin) {
-            res.status(200).json({ message: "Admin created successfully" }, admin);
+            res.status(200).json(admin);
         } else {
             res.status(400).json({ message: "Could not create admin" });
         }

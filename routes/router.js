@@ -6,5 +6,6 @@ const admin = require('./admin');
 
 module.exports = () => {
     user(router);
+    admin(router);
     return router;
 }
