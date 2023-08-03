@@ -1,7 +1,6 @@
 const express = require('express');
 const { merge, get } = require('lodash');
 const User = require('../models/userschema');
-const mongoose = require('mongoose');
 const expressAsyncHandler = require('express-async-handler');
 const getUserBySessionToken = (sessionToken) => User.findOne({ 'authentication.sessionToken': sessionToken }).exec();
 
@@ -11,6 +10,9 @@ const isOwner = expressAsyncHandler(async (req, res, next) => {
         const { id } = req.params;
         const currentUserId = (get, `identity._id`);
         if (!currentUserId) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        if(currentUserId !== id){
             return res.status(401).json({ message: 'Unauthorized' });
         }
         next();

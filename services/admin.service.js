@@ -39,6 +39,7 @@ const loginAdmin = expressAsyncHandler(async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).json({ message: "Please fill all fields" });
+            return;
         }
         const admin = await Admin.findOne({ email }).select('+authentication.salt +authentication.password');
         if (!admin) {
@@ -46,14 +47,15 @@ const loginAdmin = expressAsyncHandler(async (req, res) => {
         }
         const expectedHash = authentication(admin.authentication.salt, password);
         if (admin.authentication.password !== expectedHash) {
-            return res.status(401).json('Authentication issues');
+            return res.status(403).json("Incorrect password");
         }
         const salt = generateRandomString();
         admin.authentication.sessionToken = authentication(salt, admin._id.toString());
         await admin.save();
-        res.cookie('authentication_cookie_admin', admin.authentication.sessionToken, { domain: 'localhost', path: '/' });
+        res.cookie('authentication_cookie_admin', admin.authentication.sessionToken, { domain: 'localhost', path: '/', });
         res.status(200).json(admin);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Something went wrong" });
     }
 });
