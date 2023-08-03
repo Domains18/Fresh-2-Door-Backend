@@ -4,12 +4,13 @@ const app = express();
 const cors = require('cors');
 const colors = require('colors');
 const bodyParser = require('body-parser');
-
+const cookieParser = require('cookie-parser')
 const { mongooseInstance } = require('./database');
 const { errorHandler } = require('./middleware/errorHandler');
 const { default: mongoose } = require('mongoose');
 
 // Middlewares
+app.use(cookieParser())
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
