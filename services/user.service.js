@@ -1,34 +1,36 @@
+const { generateRandomString, authentication } = require('../helpers');
 const User = require('../models/userschema');
 const expressAsyncHandler = require('express-async-handler');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { generateRandomString, authentication } = require('../helpers');
+const { OK, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = require('http-status-codes');
 
-
-
-const registerUser = expressAsyncHandler(async (req, res) => {
+// Middleware to validate required fields
+const validateRequiredFields = (req, res, next) => {
     const { name, phoneNumber, email, password, location } = req.body;
     if (!name || !phoneNumber || !email || !password || !location) {
-        res.status(400).send({ message: "Please fill all fields" });
+        return res.status(400).json({ message: "Please fill all fields" });
     }
-    const checkDuplicateEmail = await User.findOne({ email });
-    if (!checkDuplicateEmail) {
-        return res.sendStatus(400);
-    }
-    const salt = generateRandomString();
-    const user = await User.create({
-        name, phoneNumber, email, email, password, location,
-        authentication: {
-            salt,
-            password: authentication(salt, password)
-        }
-    });
-    if (user) {
-        return res.sendStatus(200).json(user);
-    } else {
-        res.status(400);
-        throw new Error("could not create user");
-        return;
+    next();
+};
+
+const registerUser = expressAsyncHandler(async (req, res) => {
+    try {
+        const { name, phoneNumber, email, password, location } = req.body;
+        const salt = generateRandomString();
+        const hashedPassword = authentication(salt, password);
+        const user = await User.create({
+            name,
+            phoneNumber,
+            email,
+            password: hashedPassword,
+            location,
+            authentication: {
+                salt,
+                password: hashedPassword
+            }
+        });
+        return res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Could not create user" });
     }
 });
 
@@ -36,27 +38,24 @@ const loginUser = expressAsyncHandler(async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            res.status(400).send({ message: "Please fill all fields" });
+            return res.status(400).json({ message: "Please fill all fields" });
         }
-        const user = await User.findOne(email).select('+authentication.salt +authentication.password');
+        const user = await User.findOne({ email }).select('+authentication.salt +authentication.password');
         if (!user) {
-            return res.sendStatus(200).json("email not registered");
+            return res.status(401).json("Email not registered");
         }
         const expectedHash = authentication(user.authentication.salt, password);
         if (user.authentication.password !== expectedHash) {
-            return res.sendStatus(401).json('authentication issues');
+            return res.status(401).json('Authentication issues');
         }
         const salt = generateRandomString();
         user.authentication.sessionToken = authentication(salt, user._id.toString());
         await user.save();
         res.cookie('authentication_cookie', user.authentication.sessionToken, { domain: 'localhost', path: '/' });
-        res.status(200).json(user).end();
+        res.status(200).json(user);
     } catch (error) {
-        throw new Error(error);
-        return res.sendStatus(500).json('something went wrong');
+        res.status(500).json({ message: "Something went wrong" });
     }
 });
 
-
-
-module.exports = { loginUser, registerUser };
+module.exports = { loginUser, registerUser, validateRequiredFields };

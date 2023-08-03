@@ -18,10 +18,10 @@ app.use(bodyParser.json());
 
 
 //database 
-Promise = mongooseInstance();
+mongooseInstance();
 
-app.use('/users', require('./routes/userRoute'));
-app.use('/admins', require('./routes/adminRoute'));
+// Routes
+app.use('/api', require('./routes/router')());
 
 app.use(errorHandler);
 app.listen(process.env.PORT, () => {
