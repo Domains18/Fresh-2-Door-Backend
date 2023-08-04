@@ -17,7 +17,7 @@ const isOwner = expressAsyncHandler(async (req, res, next) => {
         }
         next();
     } catch (error) {
-        throw new Error(error);
+        console.log(error);
         return res.status(401).json({ message: 'Unauthorized' });
     }
 });

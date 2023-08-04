@@ -13,9 +13,10 @@ module.exports = (router) => {
     router.post('/auth/user/login', loginUser);
     router.post('/auth/user/register', registerUser);
 
-
     //global routes functions(available to all users)
     router.get('/products', fetchProducts);
     router.get('/products/:batch', fetchProductsByBatch);
 
+    //orderProduct routes functions
+    
 }
