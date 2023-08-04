@@ -2,33 +2,24 @@
 
 const mongoose = require('mongoose');
 
-const orderSchema = new mongoose.Schema(
-  {
-    products: [
-      {
-        productId: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: true,
-        },
-        quantity: { type: Number, required: true },
-      },
-    ],
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-    shippingInfo: {
-      name: { type: String, required: true },
-      address: { type: String, required: true },
-      city: { type: String, required: true },
-      postalCode: { type: String, required: true },
-      country: { type: String, required: true },
-    },
-    // Add more fields as needed (e.g., payment details, total price, etc.)
+const orderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
   },
-
-  { timestamps: true }
-);
+  products: {
+    name: { type: String, required: true },
+    qty: { type: Number, required: true },
+    image: { type: String, required: true },
+    price: { type: Number, required: true },
+  },
+  shippingInfo: {
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+    mobile: { type: String, required: true },
+  }
+});
 
 const Order = mongoose.model('Order', orderSchema);
 

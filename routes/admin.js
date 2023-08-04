@@ -6,7 +6,6 @@ const {
     deleteMyAdmin,
     //products
     createProduct,
-    fetchProducts,
     fetchProductsByBatch,
     updateProducts,
     deleteProducts
@@ -26,6 +25,7 @@ module.exports = (router) => {
 
     // Product routes functions
     router.post('/admin/product', isAuthenticated, isAdmin, createProduct);
+    router.get('/admin/product:batch', isAuthenticated, isAdmin, fetchProductsByBatch);
     router.patch('/admin/product/:id', isAuthenticated, isAdmin, updateProducts);
     router.delete('/admin/product/:id', isAuthenticated, isAdmin, deleteProducts);
 
