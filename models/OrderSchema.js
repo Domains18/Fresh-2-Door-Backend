@@ -8,12 +8,15 @@ const orderSchema = new mongoose.Schema(
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Product',
           required: true,
         },
         quantity: { type: Number, required: true },
       },
     ],
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
     shippingInfo: {
       name: { type: String, required: true },
       address: { type: String, required: true },
@@ -23,7 +26,7 @@ const orderSchema = new mongoose.Schema(
     },
     // Add more fields as needed (e.g., payment details, total price, etc.)
   },
-  
+
   { timestamps: true }
 );
 

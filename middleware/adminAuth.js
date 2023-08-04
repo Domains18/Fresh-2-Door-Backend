@@ -40,4 +40,24 @@ const isAuthenticated = expressAsyncHandler(async (req, res, next) => {
     }
 });
 
-module.exports = { isAuthenticated, isOwner };
+const isAdmin = expressAsyncHandler(async (req, res, next) => {
+    try {
+        const sessionToken = req.cookies['authentication_cookie_admin'];
+        if (!sessionToken) {
+            return res.status(401).json("Please login first");
+        }
+        const admin = await getUserBySessionToken(sessionToken);
+        if (!admin) {
+            return res.status(401).json("User not found");
+        }
+        if (admin.role !== 'admin') {
+            return res.status(403).json("You are not authorized to perform this action");
+        }
+        merge(req, { identity: admin });
+        next();
+    } catch (error) {
+        console.log(error);
+        res.status(500).json("Something went wrong");
+    }
+});
+module.exports = { isAuthenticated, isOwner, isAdmin };

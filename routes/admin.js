@@ -1,7 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { getMyAdmin, updateMyAdmin, deleteMyAdmin } = require('../functions/admin');
-const { isOwner, isAuthenticated } = require('../middleware/adminAuth')
+const { 
+    getMyAdmin, 
+    updateMyAdmin, 
+    deleteMyAdmin,
+    //products
+    createProduct,
+    fetchProducts,
+    fetchProductsByBatch,
+    updateProducts,
+    deleteProducts
+} = require('../functions/admin');
+
+const { isOwner, isAuthenticated, isAdmin } = require('../middleware/adminAuth')
 const { registerAdmin, loginAdmin } = require('../services/admin.service')
 
 module.exports = (router) => {
@@ -12,4 +23,11 @@ module.exports = (router) => {
     router.get('/admin/:id', isAuthenticated, isOwner, getMyAdmin);
     router.patch('/admin/:id', isAuthenticated, isOwner, updateMyAdmin);
     router.delete('/admin/:id', isAuthenticated, isOwner, deleteMyAdmin);
+
+    // Product routes functions
+    router.post('/admin/product', isAuthenticated, isAdmin, createProduct);
+    router.get('/admin/product/:batch', isAuthenticated, isAdmin, fetchProductsByBatch);
+    router.patch('/admin/product/:id', isAuthenticated, isAdmin, updateProducts);
+    router.delete('/admin/product/:id', isAuthenticated, isAdmin, deleteProducts);
+
 }
